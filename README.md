@@ -172,6 +172,23 @@ before merge.
 A harness that aces trivial edits and fails every migration should not top
 your scorecard. The weighting is what stops it.
 
+### "Won't running two harnesses just double my bill?"
+
+Fair question, and it deserves a real number instead of a hand-wave. In the
+[example run](#example-run) above, claude-code resolved every sample task at
+**$0.16 per resolved task**. Add codex as a second harness on the same task
+and token spend roughly doubles — call it ~$0.32 combined, more on a real
+repo's harder tasks. Codex's own cost shows as `n/a` in that table because
+this tool never guesses a number it didn't measure, so treat "roughly double"
+as the honest floor, not a precise total.
+
+That's the actual scale of it: cents per task, not dollars. What isn't cheap
+is latency (waiting on two harnesses instead of one) and review time (someone
+has to look at two diffs when they disagree). Blast radius is what decides
+whether that's worth paying — a `low` task gets one harness, one attempt, full
+stop. Only `high` tasks are where a second harness and a few extra cents buy
+you the signal that matters before a migration ships.
+
 ## Configuration
 
 `config/harnesses.yaml` holds one block per harness. Flags move between
