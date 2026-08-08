@@ -1,0 +1,27 @@
+[project]
+name = "harness-eval"
+version = "0.1.0"
+description = "Controlled comparison of AI coding harnesses on your own repository."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+dependencies = ["PyYAML>=6.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4", "ruff>=0.5"]
+
+[project.scripts]
+harness-eval = "harness_eval.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["harness_eval*"]
+
+[tool.ruff]
+line-length = 95
+
+[tool.ruff.lint]
+ignore = ["S603", "S607", "PLW1510"]

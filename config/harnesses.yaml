@@ -1,0 +1,44 @@
+# One block per harness under comparison.
+#
+# Keep model fields identical across blocks where the harness supports it.
+# That is the only way to separate harness quality from model quality; if you
+# change both at once you cannot attribute the difference to either.
+
+harnesses:
+  - name: claude-code
+    adapter: claude-code
+    enabled: true
+    model: claude-sonnet-4-6
+    extra_args: []
+
+  - name: codex
+    adapter: codex
+    enabled: true
+    model: null
+    extra_args: []
+
+  - name: cursor
+    adapter: cursor
+    enabled: false
+    model: claude-sonnet-4-6
+    extra_args: []
+
+  - name: aider
+    adapter: aider
+    enabled: false
+    model: sonnet
+    extra_args: ["--no-stream"]
+
+  - name: opencode
+    adapter: opencode
+    enabled: true
+    model: opencode/big-pickle
+    extra_args: []
+
+  # Same harness, different model. This is the agent trial, not the harness
+  # trial: the runtime is held constant and only the brain changes.
+  - name: claude-code-opus
+    adapter: claude-code
+    enabled: false
+    model: claude-opus-4-5
+    extra_args: []

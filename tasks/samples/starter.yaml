@@ -1,0 +1,58 @@
+# Bundled starter tasks.
+#
+# These run against the fixture repo created by scripts/make_fixture.sh, so a
+# new user can get a real scorecard before pointing the tool at anything that
+# matters. They are calibration, not a benchmark. The benchmark is your own
+# history: harness-eval mine --repo .
+#
+# Note the spread of blast radius. A task set made only of easy single file
+# edits will tell you every harness is equally good, which is both true and
+# useless.
+
+tasks:
+  - id: sample-slugify
+    prompt: |
+      Add a `slugify(text)` function to `app/text_utils.py`. It should lowercase
+      the input, replace any run of non-alphanumeric characters with a single
+      hyphen, and strip leading and trailing hyphens. The tests in
+      tests/test_text_utils.py describe the exact behaviour and must pass
+      unmodified.
+    repo: /tmp/harness-eval-fixture
+    base_commit: HEAD
+    blast_radius: low
+    files_hint: ["app/*"]
+    verify:
+      - "python -m pytest tests/test_text_utils.py -q"
+    timeout_sec: 600
+
+  - id: sample-retry-backoff
+    prompt: |
+      `app/client.py` retries failed requests with a fixed one second delay.
+      Replace it with exponential backoff and full jitter, capped at 30 seconds,
+      with a configurable maximum attempt count that defaults to 5. Keep the
+      existing public signature so callers do not break.
+    repo: /tmp/harness-eval-fixture
+    base_commit: HEAD
+    blast_radius: medium
+    files_hint: ["app/*"]
+    verify:
+      - "python -m pytest tests/test_client.py -q"
+    timeout_sec: 900
+
+  - id: sample-schema-migration
+    prompt: |
+      The `orders` table stores currency amounts as floats, which has already
+      caused rounding drift in reconciliation. Migrate the column to integer
+      minor units, update the ORM model and every read and write path, and add
+      a reversible migration under app/migrations/. Existing rows must convert
+      without loss.
+    repo: /tmp/harness-eval-fixture
+    base_commit: HEAD
+    blast_radius: high
+    files_hint: ["app/*", "app/migrations/*"]
+    setup:
+      - "python -m pip install -q -e . || true"
+    verify:
+      - "python -m pytest tests/test_orders.py -q"
+      - "python -m pytest tests/test_migration_roundtrip.py -q"
+    timeout_sec: 1800

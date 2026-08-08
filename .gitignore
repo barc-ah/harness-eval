@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+.DS_Store
+
+# generated trial output, not source
+results/
+
+# duplicate snapshot trees, not the canonical source
+/harness-eval/
+/files/

@@ -1,0 +1,22 @@
+# Defaults for a trial run. Anything here can be overridden on the CLI.
+
+repeats:
+  # Attempts per task, by blast radius. Cheap-to-revert work does not need
+  # five samples; a schema migration does.
+  low: 1
+  medium: 3
+  high: 5
+
+concurrency: 2
+
+test_globs:
+  - "**/test_*.py"
+  - "**/*_test.py"
+  - "**/tests/**"
+  - "**/*.spec.ts"
+
+budget:
+  # Stop the trial if it gets expensive. Trials are cheap next to engineering
+  # time, but a runaway loop is still a bad afternoon.
+  max_usd: 25.0
+  max_wall_clock_min: 90
