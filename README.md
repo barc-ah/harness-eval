@@ -24,7 +24,7 @@ repeated enough times to separate a real win from a lucky one.
 
 ![Scorecard rendering from a real claude-code vs codex trial](docs/assets/benchmark.gif)
 
-Real trial, same 3 tasks, blast-radius repeats — not staged output. See
+Real trial, same 3 tasks, blast-radius repeats, not staged output. See
 [Example run](#example-run) below for the full table this comes from.
 
 ## Why
@@ -65,7 +65,7 @@ You --> harness-eval CLI --> Runner --> Adapter --> Worktree --> Harness CLI
 Every attempt gets a fresh, isolated worktree. The Runner fans a task out across
 every enabled harness and repeats it per the task's blast radius (1/3/5 times);
 each repeat feeds back into the same Adapter → Worktree → Harness CLI step, not
-into some pool of shared state — nothing here learns or adapts between runs.
+into some pool of shared state. Nothing here learns or adapts between runs.
 Oracle only ever checks exit codes and diffs, never another model's opinion.
 
 ## Prerequisites
@@ -77,12 +77,12 @@ Oracle only ever checks exit codes and diffs, never another model's opinion.
 | Harness | Install Command | Adapter status |
 |---------|-----------------|-----------------|
 | Claude Code | `npm install -g @anthropic-ai/claude-code` | validated against real CLI runs |
-| Codex | `npm install -g @openai/codex` | validated against real CLI runs — ChatGPT-account auth needs `model: null` in config |
+| Codex | `npm install -g @openai/codex` | validated against real CLI runs; ChatGPT-account auth needs `model: null` in config |
 | OpenCode | `npm install -g opencode-ai` or `brew install opencode` | wired, needs `opencode auth login` before use |
 | Cursor | `cursor --install-cli` (or Settings → Install `cursor` command) | wired, not yet run against a real CLI |
 | Aider | `pip install aider-chat` | wired, not yet run against a real CLI |
 
-"Validated" means an adapter has actually been run against that harness's real CLI end to end on the fixture repo, not just that the argv looks right on paper — see [Installation](https://github.com/barc-ah/harness-eval/wiki/Installation) in the wiki for the auth quirks found so far.
+"Validated" means an adapter has actually been run against that harness's real CLI end to end on the fixture repo, not just that the argv looks right on paper. See [Installation](https://github.com/barc-ah/harness-eval/wiki/Installation) in the wiki for the auth quirks found so far.
 
 ## Install
 
@@ -172,15 +172,16 @@ before merge.
 A harness that aces trivial edits and fails every migration should not top
 your scorecard. The weighting is what stops it.
 
-### "Won't running two harnesses just double my bill?"
+### Costing
 
-Fair question, and it deserves a real number instead of a hand-wave. In the
-[example run](#example-run) above, claude-code resolved every sample task at
-**$0.16 per resolved task**. Add codex as a second harness on the same task
-and token spend roughly doubles — call it ~$0.32 combined, more on a real
-repo's harder tasks. Codex's own cost shows as `n/a` in that table because
-this tool never guesses a number it didn't measure, so treat "roughly double"
-as the honest floor, not a precise total.
+Fair question: "won't running two harnesses just double my bill?" It
+deserves a real number instead of a hand-wave. In the [example
+run](#example-run) above, claude-code resolved every sample task at **$0.16
+per resolved task**. Add codex as a second harness on the same task and
+token spend roughly doubles, call it ~$0.32 combined, more on a real repo's
+harder tasks. Codex's own cost shows as `n/a` in that table because this
+tool never guesses a number it didn't measure, so treat "roughly double" as
+the honest floor, not a precise total.
 
 Broken out by blast radius, using claude-code's real per-task cost from that
 same trial:
@@ -194,15 +195,77 @@ same trial:
 ![Cost scales with blast radius, not with harness count](docs/assets/cost-by-blast-radius.png)
 
 The doubling is real, but it's doubling cents. What actually scales up is the
-repeat count driven by blast radius — going from `low` to `high` is roughly
+repeat count driven by blast radius: going from `low` to `high` is roughly
 9x the cost of one harness before you've even added a second one.
 
-That's the actual scale of it: cents per task, not dollars. What isn't cheap
-is latency (waiting on two harnesses instead of one) and review time (someone
-has to look at two diffs when they disagree). Blast radius is what decides
-whether that's worth paying — a `low` task gets one harness, one attempt, full
-stop. Only `high` tasks are where a second harness and a few extra cents buy
-you the signal that matters before a migration ships.
+That table only shows what you spend to run it. It doesn't show what the
+extra spend gets you: spend $0.50 and you get one harness's word that it's
+done. Spend $1 and a second harness runs the same task independently, and
+you get to compare instead of trust.
+
+![Spending $0.50 on one harness gets a single pass with no way to check it. Spending $1 on two harnesses either confirms the result or surfaces a disagreement worth investigating before merge.](docs/assets/what-the-extra-dollar-buys.png)
+
+Treat it as a premium, not an invoice: a few extra cents and a few extra
+minutes of latency, paid only on `high` blast-radius tasks, in exchange for
+catching a wrong schema migration, a broken auth change, or a protobuf
+contract mismatch *before* it merges instead of after it pages someone. This
+tool cannot put a number on that payout, it never guesses a cost it didn't
+measure, and "what an incident costs your team" isn't something a task
+runner can observe. But the asymmetry is the point: the premium is capped
+and known (~2x a task that already costs cents), the payout is whatever
+your team's own numbers say a bad `high` blast-radius merge costs in
+rollback time, downstream breakage, and trust. For low blast-radius work
+that reverts in a commit, that asymmetry doesn't exist and the second
+harness isn't worth its own latency, which is exactly why the tool never
+spends it there.
+
+### "Why not just run 2-3 models in one harness instead?"
+
+Because that only tells you which model, and it quietly assumes the harness
+is a neutral measuring instrument. It isn't. [Endor Labs measured GPT-5.5 at
+61.5% functionality inside Codex's own harness and 87.2% running inside
+Cursor](https://www.endorlabs.com/research/ai-code-security-benchmark), same
+model, same week. If you only ever swap models inside one fixed harness, that
+25 point swing is invisible, and you'll credit or blame the model for what is
+actually the runtime underneath it.
+
+These are two different experiments and this tool supports both, but only one
+tells you about the harness:
+
+- **Agent trial**: harness fixed, model varies. Measures reasoning.
+- **Harness trial**: model fixed, harness varies. Measures the runtime: file
+  editing strategy, context management, subagents, test loop, skill system.
+
+Picking a model by running it in one harness answers "which model wins
+inside this harness," not "which model is best" and not "is this harness
+capping every model's score the same amount." Keep the `model` field
+identical across harness blocks in `config/harnesses.yaml` and you're running
+the harness trial; keep the harness fixed and swap `model` for the agent
+trial. Neither substitutes for the other.
+
+### Governance
+
+The output of a `high` blast-radius trial isn't just a score, it's evidence.
+Two harnesses agreeing on a schema migration is a real confidence signal,
+the kind no amount of re-running one harness can manufacture. Two harnesses
+disagreeing is exactly the thing a reviewer wants to see *before* merge, not
+after. It's a concrete diff-vs-diff disagreement instead of one harness's
+self-report that it's done.
+
+That evidence only holds up if nothing upstream of it is opinion.
+
+![One path is a harness reporting it's done, an opinion with no record behind it. The other is verify commands exiting zero, a diff, and a tamper guard, an audit trail a reviewer can actually check.](docs/assets/governance-evidence-not-opinion.png)
+
+A run resolves on exit codes or it doesn't, no model grades another model's
+code. A missing measurement stays `None` instead of quietly defaulting to
+zero, so a report never claims certainty it doesn't have. A harness that
+tries to pass by editing the test it's graded on gets caught and failed
+outright, regardless of what the exit code says afterward.
+
+A compliance or security reviewer can audit "verify commands exit zero" and
+"here's the diff." They cannot audit "the model said it looked fine," and on
+a high blast-radius change, that is not evidence anyone should be signing
+off on.
 
 ## Configuration
 
@@ -258,7 +321,7 @@ repeats (1/3/5), 18 total attempts:
 | claude-code | claude-sonnet-4-6 | 100.0% | 100.0% | 70%-100% | 50 | $0.16 | 0% |
 | codex | (account default) | 100.0% | 100.0% | 70%-100% | 97 | n/a | 0% |
 
-Codex cost is `n/a`, not `$0.00` — it does not emit structured usage the way
+Codex cost is `n/a`, not `$0.00`. It does not emit structured usage the way
 Claude Code does, and this tool never guesses a number it did not measure.
 
 Three sample tasks is a smoke test, not a benchmark. Real signal comes from
