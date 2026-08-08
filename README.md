@@ -21,12 +21,10 @@ repeated enough times to separate a real win from a lucky one.
 
 ## See it in action
 
-![harness-eval doctor and a dry-run trial](docs/assets/demo.gif)
+![Scorecard rendering from a real claude-code vs codex trial](docs/assets/benchmark.gif)
 
-`doctor` checks which harness CLIs are actually on your `PATH`, then a
-`--dry-run` trial fans a task out across every enabled harness without
-spending a single real token — the fast way to confirm your config is wired
-correctly before you run it for real.
+Real trial, same 3 tasks, blast-radius repeats — not staged output. See
+[Example run](#example-run) below for the full table this comes from.
 
 ## Why
 
@@ -218,8 +216,6 @@ Rank by weighted score, not pass@1. Then check three things:
    and fails review.
 
 ## Example run
-
-![Scorecard rendering from a real claude-code vs codex trial](docs/assets/benchmark.gif)
 
 Fixture repo (`scripts/make_fixture.sh`), 3 sample tasks, blast-radius default
 repeats (1/3/5), 18 total attempts:
