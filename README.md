@@ -27,6 +27,29 @@ The second one is harder and matters more, because the harness carries
 capability the model does not. Config supports both; keep the `model` field
 identical across harness blocks and you are running the second experiment.
 
+## Architecture
+
+```
+You --> harness-eval CLI --> Runner --> Adapter --> Worktree --> Harness CLI
+                                ^                                    |
+                                |                                    v
+                                +---- repeat (blast radius) ---- Oracle (verify,
+                                                                  tamper guard)
+                                                                       |
+                                                                       v
+                                                              Scoring (pass@k,
+                                                               Wilson interval)
+                                                                       |
+                                                                       v
+                                                                   Scorecard
+```
+
+Every attempt gets a fresh, isolated worktree. The Runner fans a task out across
+every enabled harness and repeats it per the task's blast radius (1/3/5 times);
+each repeat feeds back into the same Adapter → Worktree → Harness CLI step, not
+into some pool of shared state — nothing here learns or adapts between runs.
+Oracle only ever checks exit codes and diffs, never another model's opinion.
+
 ## Prerequisites
 
 **Python**: 3.10+
