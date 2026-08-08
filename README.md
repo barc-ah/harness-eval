@@ -219,6 +219,8 @@ Rank by weighted score, not pass@1. Then check three things:
 
 ## Example run
 
+![Scorecard rendering from a real claude-code vs codex trial](docs/assets/benchmark.gif)
+
 Fixture repo (`scripts/make_fixture.sh`), 3 sample tasks, blast-radius default
 repeats (1/3/5), 18 total attempts:
 
