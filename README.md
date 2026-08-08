@@ -1,4 +1,4 @@
-# Harness Eval
+![Harness Eval](docs/assets/logo.png)
 
 Run the same task through Claude Code, Codex, Cursor, Aider and OpenCode on
 your own repository. Score the results on things a machine can verify. Find
