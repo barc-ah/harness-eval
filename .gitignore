@@ -13,3 +13,8 @@ results/
 # duplicate snapshot trees, not the canonical source
 /harness-eval/
 /files/
+
+# personal agent tooling, unrelated to this project, and unverified draft
+/.agents/
+/skills-lock.json
+/docs/medium-post.md
