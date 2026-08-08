@@ -17,7 +17,8 @@ repeated enough times to separate a real win from a lucky one.
 **[Install](#install)** ·
 **[Architecture](#architecture)** ·
 **[Example run](#example-run)** ·
-**[Contributing](CONTRIBUTING.md)**
+**[Contributing](CONTRIBUTING.md)** ·
+**[Writeup](https://medium.com/@barath.ravichander/you-are-benchmarking-the-wrong-thing-df8de2f96a17)**
 
 ## See it in action
 
