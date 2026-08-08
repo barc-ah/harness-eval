@@ -31,8 +31,8 @@ harnesses:
 
   - name: opencode
     adapter: opencode
-    enabled: true
-    model: opencode/big-pickle
+    enabled: false
+    model: anthropic/claude-sonnet-4-6
     extra_args: []
 
   # Same harness, different model. This is the agent trial, not the harness

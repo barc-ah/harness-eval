@@ -176,20 +176,15 @@ Rank by weighted score, not pass@1. Then check three things:
 ## Example run
 
 Fixture repo (`scripts/make_fixture.sh`), 3 sample tasks, blast-radius default
-repeats (1/3/5), 27 total attempts:
+repeats (1/3/5), 18 total attempts:
 
 | Harness | Model | Weighted | pass@1 | 95% CI | Median s | Cost/resolved | Flaky |
 |---|---|---|---|---|---|---|---|
 | claude-code | claude-sonnet-4-6 | 100.0% | 100.0% | 70%-100% | 50 | $0.16 | 0% |
 | codex | (account default) | 100.0% | 100.0% | 70%-100% | 97 | n/a | 0% |
-| opencode | opencode/big-pickle | 0.0% | 0.0% | 0%-30% | 22 | n/a | 0% |
 
-Not a fair 3-way comparison as-is: opencode ran on a free, unauthenticated
-model instead of the same `claude-sonnet-4-6` the other two used, because no
-Anthropic credentials were configured for it. Fix that (`opencode auth
-login`) before reading anything into the 0% row. Codex cost is `n/a`, not
-`$0.00` — it does not emit structured usage the way Claude Code does, and
-this tool never guesses a number it did not measure.
+Codex cost is `n/a`, not `$0.00` — it does not emit structured usage the way
+Claude Code does, and this tool never guesses a number it did not measure.
 
 Three sample tasks is a smoke test, not a benchmark. Real signal comes from
 `harness-eval mine` against your own repo's history.
