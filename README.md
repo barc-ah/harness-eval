@@ -1,5 +1,9 @@
 ![Harness Eval](docs/assets/logo.png)
 
+[![CI](https://github.com/barc-ah/harness-eval/actions/workflows/python-app.yml/badge.svg)](https://github.com/barc-ah/harness-eval/actions/workflows/python-app.yml)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
+
 Run the same task through Claude Code, Codex, Cursor, Aider and OpenCode on
 your own repository. Score the results on things a machine can verify. Find
 out which runtime actually works on your code instead of on someone else's.
@@ -8,6 +12,21 @@ Think of a trial as sending two or more harnesses to war on the same task and
 scoring the wreckage. The name is boring on purpose; the point of the tool
 is that a battle between harnesses only tells you something once it is
 repeated enough times to separate a real win from a lucky one.
+
+**[Wiki](https://github.com/barc-ah/harness-eval/wiki)** ·
+**[Install](#install)** ·
+**[Architecture](#architecture)** ·
+**[Example run](#example-run)** ·
+**[Contributing](CONTRIBUTING.md)**
+
+## See it in action
+
+![harness-eval doctor and a dry-run trial](docs/assets/demo.gif)
+
+`doctor` checks which harness CLIs are actually on your `PATH`, then a
+`--dry-run` trial fans a task out across every enabled harness without
+spending a single real token — the fast way to confirm your config is wired
+correctly before you run it for real.
 
 ## Why
 
@@ -56,13 +75,15 @@ Oracle only ever checks exit codes and diffs, never another model's opinion.
 
 **Harness CLIs** (install separately - not Python packages):
 
-| Harness | Install Command |
-|---------|-----------------|
-| Claude Code | `npm install -g @anthropic-ai/claude-code` |
-| OpenCode | `npm install -g opencode-ai` or `brew install opencode` |
-| Codex | `npm install -g @openai/codex` |
-| Cursor | `cursor --install-cli` (or Settings → Install `cursor` command) |
-| Aider | `pip install aider-chat` |
+| Harness | Install Command | Adapter status |
+|---------|-----------------|-----------------|
+| Claude Code | `npm install -g @anthropic-ai/claude-code` | validated against real CLI runs |
+| Codex | `npm install -g @openai/codex` | validated against real CLI runs — ChatGPT-account auth needs `model: null` in config |
+| OpenCode | `npm install -g opencode-ai` or `brew install opencode` | wired, needs `opencode auth login` before use |
+| Cursor | `cursor --install-cli` (or Settings → Install `cursor` command) | wired, not yet run against a real CLI |
+| Aider | `pip install aider-chat` | wired, not yet run against a real CLI |
+
+"Validated" means an adapter has actually been run against that harness's real CLI end to end on the fixture repo, not just that the argv looks right on paper — see [Installation](https://github.com/barc-ah/harness-eval/wiki/Installation) in the wiki for the auth quirks found so far.
 
 ## Install
 
