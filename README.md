@@ -182,6 +182,21 @@ repo's harder tasks. Codex's own cost shows as `n/a` in that table because
 this tool never guesses a number it didn't measure, so treat "roughly double"
 as the honest floor, not a precise total.
 
+Broken out by blast radius, using claude-code's real per-task cost from that
+same trial:
+
+| Blast radius | Attempts (this task) | 1 harness, measured | 2 harnesses, ~2x estimate |
+|---|---|---|---|
+| low | 1 | $0.11 | $0.22 |
+| medium | 3 | $0.32 | $0.64 |
+| high | 5 | $0.98 | $1.96 |
+
+![Cost scales with blast radius, not with harness count](docs/assets/cost-by-blast-radius.png)
+
+The doubling is real, but it's doubling cents. What actually scales up is the
+repeat count driven by blast radius — going from `low` to `high` is roughly
+9x the cost of one harness before you've even added a second one.
+
 That's the actual scale of it: cents per task, not dollars. What isn't cheap
 is latency (waiting on two harnesses instead of one) and review time (someone
 has to look at two diffs when they disagree). Blast radius is what decides
